@@ -28,8 +28,6 @@ Calling ansible::
       remote_user: stack
       become: true
       become_user: root
-      tags: tag1
-      skip_tags: tag2
 
 Call ansible playbook::
 
@@ -40,14 +38,10 @@ Call ansible playbook::
       remote_user: stack
       become: true
       become_user: root
-      tags: tag1
-      skip_tags: tag2
 
 
 Plans/Ideas
 -----------
 
-- "directory" should probably be renamed to "cwd" or something
-- We only support the ansible-playbook command, others should be added.
-- We only support the very minimum options for the ansible-playbook command,
-  more should be exposed.
+- We only support a subset of args ansible and ansible-playbook commands,
+  more should be exposed. Maybe we can automatically add them all somehow?
