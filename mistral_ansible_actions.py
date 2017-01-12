@@ -10,5 +10,6 @@ class AnsiblePlaybookAction(base.Action):
 
     def run(self):
         stderr, stdout = processutils.execute(
-            'ansible-playbook', playbook, cwd=self.directory, log_errors="ALL")
+            'ansible-playbook', self.playbook, cwd=self.directory,
+            log_errors=processutils.LogErrors.ALL)
         return {"stderr": stderr, "stdout": stdout}
