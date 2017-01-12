@@ -18,21 +18,30 @@ and restart Mistral::
 Usage
 -----
 
-Simple task example::
+Calling ansible::
 
-    task:
-      action: ansible.playbook
-      input:
-        playbook: path/to/playbook.yaml
+    action: ansible
+    input:
+      hosts: '*'
+      module: copy
+      module_args: 'src=file.txt dest=/root/file.txt'
+      remote_user: stack
+      become: true
+      become_user: root
+      tags: tag1
+      skip_tags: tag2
 
-Optionally the directory can be provided if you want to execute the
-ansible-playbook command from a specific location::
+Call ansible playbook::
 
-    task:
-      action: ansible.playbook
-      input:
-        playbook: playbook.yaml
-        directory: path/to
+    action: ansible-playbook
+    input:
+      limit_hosts: overcloud-controller-0
+      playbook: /home/stack/ansible/my_playbook.yaml
+      remote_user: stack
+      become: true
+      become_user: root
+      tags: tag1
+      skip_tags: tag2
 
 
 Plans/Ideas
