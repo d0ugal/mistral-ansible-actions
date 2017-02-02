@@ -28,7 +28,7 @@ class AnsibleAction(base.Action):
             command.extend(['--user', self.remote_user])
 
         if self.become:
-            command.extend(['--become', self.become])
+            command.extend(['--become'])
 
         if self.become_user:
             command.extend(['--become-user', self.become_user])
@@ -60,7 +60,7 @@ class AnsiblePlaybookAction(base.Action):
             command.extend(['--user', self.remote_user])
 
         if self.become:
-            command.extend(['--become', self.become])
+            command.extend(['--become'])
 
         if self.become_user:
             command.extend(['--become-user', self.become_user])
