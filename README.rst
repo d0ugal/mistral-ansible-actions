@@ -3,6 +3,9 @@ Mistral Actions for Ansible
 
 Note: This project is experimental and in infancy. It might work for you.
 
+However, given interested users and the time I'd like to make it stable and
+useful - so input and help is very welcome!
+
 
 Install
 ~~~~~~~
