@@ -41,13 +41,14 @@ class AnsibleAction(base.Action):
 class AnsiblePlaybookAction(base.Action):
 
     def __init__(self, playbook, limit_hosts=None, remote_user=None,
-                 become=None, become_user=None):
+                 become=None, become_user=None, extra_vars=None):
 
         self.playbook = playbook
         self.limit_hosts = limit_hosts
         self.remote_user = remote_user
         self.become = become
         self.become_user = become_user
+        self.extra_vars = extra_vars
 
     def run(self):
 
@@ -64,6 +65,9 @@ class AnsiblePlaybookAction(base.Action):
 
         if self.become_user:
             command.extend(['--become-user', self.become_user])
+
+        if self.extra_vars:
+            command.extend(['--extra-vars', self.extra_vars])
 
         stderr, stdout = processutils.execute(
             *command, log_errors=processutils.LogErrors.ALL)
