@@ -55,7 +55,7 @@ class AnsiblePlaybookAction(base.Action):
         command = ['ansible-playbook', self.playbook]
 
         if self.limit_hosts:
-            command.extend(['--args', self.limit_hosts])
+            command.extend(['--limit', self.limit_hosts])
 
         if self.remote_user:
             command.extend(['--user', self.remote_user])
