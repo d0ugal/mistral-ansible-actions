@@ -1,5 +1,6 @@
 from mistral.actions import base
 from oslo_concurrency import processutils
+import json
 
 
 class AnsibleAction(base.Action):
@@ -48,7 +49,7 @@ class AnsiblePlaybookAction(base.Action):
         self.remote_user = remote_user
         self.become = become
         self.become_user = become_user
-        self.extra_vars = extra_vars
+        self.extra_vars = json.dumps(extra_vars)
 
     def run(self):
 
