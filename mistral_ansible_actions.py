@@ -42,7 +42,8 @@ class AnsibleAction(base.Action):
 class AnsiblePlaybookAction(base.Action):
 
     def __init__(self, playbook, limit_hosts=None, remote_user=None,
-                 become=None, become_user=None, extra_vars=None):
+                 become=None, become_user=None, extra_vars=None,
+                 inventory=None):
 
         self.playbook = playbook
         self.limit_hosts = limit_hosts
@@ -50,6 +51,7 @@ class AnsiblePlaybookAction(base.Action):
         self.become = become
         self.become_user = become_user
         self.extra_vars = json.dumps(extra_vars)
+        self.inventory = inventory
 
     def run(self):
 
@@ -69,6 +71,9 @@ class AnsiblePlaybookAction(base.Action):
 
         if self.extra_vars:
             command.extend(['--extra-vars', self.extra_vars])
+
+        if self.inventory:
+            command.extend(['--inventory-file', self.inventory])
 
         stderr, stdout = processutils.execute(
             *command, log_errors=processutils.LogErrors.ALL)
