@@ -1,6 +1,11 @@
+import json
+import os
+import tempfile
+
+import yaml
+
 from mistral.actions import base
 from oslo_concurrency import processutils
-import json
 
 
 class AnsibleAction(base.Action):
@@ -45,17 +50,53 @@ class AnsiblePlaybookAction(base.Action):
                  become=None, become_user=None, extra_vars=None,
                  inventory=None):
 
-        self.playbook = playbook
+        self._playbook = playbook
         self.limit_hosts = limit_hosts
         self.remote_user = remote_user
         self.become = become
         self.become_user = become_user
         self.extra_vars = json.dumps(extra_vars)
-        self.inventory = inventory
+        self._inventory = inventory
+
+    @property
+    def inventory(self):
+        if not self._inventory:
+            return None
+
+        # NOTE(flaper87): if it's a path, use it
+        if os.path.exists(self._inventory):
+            return open(self._inventory)
+
+        # NOTE(flaper87):
+        # We could probably catch parse errors here
+        # but if we do, they won't be propagated and
+        # we should not move forward with the action
+        # if the inventory generation failed
+        inventory = tempfile.NamedTemporaryFile()
+        inventory.write(yaml.dump(self._inventory))
+        return inventory
+
+    @property
+    def playbook(self):
+        if not self._playbook:
+            return None
+
+        # NOTE(flaper87): if it's a path, use it
+        if os.path.exists(self._playbook):
+            return open(self._playbook)
+
+        # NOTE(flaper87):
+        # We could probably catch parse errors here
+        # but if we do, they won't be propagated and
+        # we should not move forward with the action
+        # if the playbook generation failed
+        playbook = tempfile.NamedTemporaryFile()
+        playbook.write(yaml.dump(self._playbook))
+        return playbook
 
     def run(self):
-
-        command = ['ansible-playbook', self.playbook]
+        playbook = self.playbook
+        command = ['ansible-playbook', '-vvvvv', playbook.name]
 
         if self.limit_hosts:
             command.extend(['--limit', self.limit_hosts])
@@ -72,9 +113,19 @@ class AnsiblePlaybookAction(base.Action):
         if self.extra_vars:
             command.extend(['--extra-vars', self.extra_vars])
 
-        if self.inventory:
-            command.extend(['--inventory-file', self.inventory])
+        inventory = self.inventory
+        if inventory:
+            command.extend(['--inventory-file', inventory.name])
 
-        stderr, stdout = processutils.execute(
-            *command, log_errors=processutils.LogErrors.ALL)
-        return {"stderr": stderr, "stdout": stdout}
+        try:
+            stderr, stdout = processutils.execute(
+                *command, log_errors=processutils.LogErrors.ALL)
+            return {"stderr": stderr, "stdout": stdout}
+        finally:
+            # NOTE(flaper87): Close the file
+            # this is important as it'll also cleanup
+            # temporary files
+            if inventory:
+                inventory.close()
+
+            playbook.close()
