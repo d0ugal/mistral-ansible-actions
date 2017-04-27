@@ -50,7 +50,7 @@ class AnsiblePlaybookAction(base.Action):
                  become=None, become_user=None, extra_vars=None,
                  inventory=None):
 
-        self.playbook = playbook
+        self._playbook = playbook
         self.limit_hosts = limit_hosts
         self.remote_user = remote_user
         self.become = become
@@ -76,8 +76,27 @@ class AnsiblePlaybookAction(base.Action):
         inventory.write(yaml.dump(self._inventory))
         return inventory
 
+    @property
+    def playbook(self):
+        if not self._playbook:
+            return None
+
+        # NOTE(flaper87): if it's a path, use it
+        if os.path.exists(self._playbook):
+            return open(self._playbook)
+
+        # NOTE(flaper87):
+        # We could probably catch parse errors here
+        # but if we do, they won't be propagated and
+        # we should not move forward with the action
+        # if the playbook generation failed
+        playbook = tempfile.NamedTemporaryFile()
+        playbook.write(yaml.dump(self._playbook))
+        return playbook
+
     def run(self):
-        command = ['ansible-playbook', '-vvvvv', self.playbook]
+        playbook = self.playbook
+        command = ['ansible-playbook', '-vvvvv', playbook.name]
 
         if self.limit_hosts:
             command.extend(['--limit', self.limit_hosts])
@@ -108,3 +127,5 @@ class AnsiblePlaybookAction(base.Action):
             # temporary files
             if inventory:
                 inventory.close()
+
+            playbook.close()
