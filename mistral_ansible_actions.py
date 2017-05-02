@@ -1,5 +1,6 @@
 import json
 import os
+import six
 import tempfile
 
 import yaml
@@ -64,7 +65,8 @@ class AnsiblePlaybookAction(base.Action):
             return None
 
         # NOTE(flaper87): if it's a path, use it
-        if os.path.exists(self._inventory):
+        if (isinstance(self._inventory, six.string_types) and
+            os.path.exists(self._inventory)):
             return open(self._inventory)
 
         # NOTE(flaper87):
@@ -82,7 +84,8 @@ class AnsiblePlaybookAction(base.Action):
             return None
 
         # NOTE(flaper87): if it's a path, use it
-        if os.path.exists(self._playbook):
+        if (isinstance(self._playbook, six.string_types) and
+            os.path.exists(self._playbook)):
             return open(self._playbook)
 
         # NOTE(flaper87):
