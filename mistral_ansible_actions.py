@@ -76,6 +76,10 @@ class AnsiblePlaybookAction(base.Action):
         # if the inventory generation failed
         inventory = tempfile.NamedTemporaryFile()
         inventory.write(yaml.dump(self._inventory))
+        # NOTE(flaper87): We need to flush the memory
+        # because we're neither filling up the buffer
+        # nor closing the file.
+        inventory.flush()
         return inventory
 
     @property
@@ -95,6 +99,10 @@ class AnsiblePlaybookAction(base.Action):
         # if the playbook generation failed
         playbook = tempfile.NamedTemporaryFile()
         playbook.write(yaml.dump(self._playbook))
+        # NOTE(flaper87): We need to flush the memory
+        # because we're neither filling up the buffer
+        # nor closing the file.
+        playbook.flush()
         return playbook
 
     def run(self):
