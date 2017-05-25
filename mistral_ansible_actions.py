@@ -49,7 +49,7 @@ class AnsiblePlaybookAction(base.Action):
 
     def __init__(self, playbook, limit_hosts=None, remote_user=None,
                  become=None, become_user=None, extra_vars=None,
-                 inventory=None):
+                 inventory=None, verbosity=5):
 
         self._playbook = playbook
         self.limit_hosts = limit_hosts
@@ -58,6 +58,7 @@ class AnsiblePlaybookAction(base.Action):
         self.become_user = become_user
         self.extra_vars = json.dumps(extra_vars)
         self._inventory = inventory
+        self.verbosity = verbosity
 
     @property
     def inventory(self):
@@ -107,7 +108,11 @@ class AnsiblePlaybookAction(base.Action):
 
     def run(self):
         playbook = self.playbook
-        command = ['ansible-playbook', '-vvvvv', playbook.name]
+        if 0 < self.verbosity < 6:
+            verbosity_option = '-' + ('v' * self.verbosity)
+            command = ['ansible-playbook', verbosity_option, playbook.name]
+        else:
+            command = ['ansible-playbook', playbook.name]
 
         if self.limit_hosts:
             command.extend(['--limit', self.limit_hosts])
