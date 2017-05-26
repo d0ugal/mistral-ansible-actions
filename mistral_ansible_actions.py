@@ -75,7 +75,7 @@ class AnsiblePlaybookAction(base.Action):
         # but if we do, they won't be propagated and
         # we should not move forward with the action
         # if the inventory generation failed
-        inventory = tempfile.NamedTemporaryFile()
+        inventory = tempfile.NamedTemporaryFile(suffix='.yaml')
         inventory.write(yaml.dump(self._inventory))
         # NOTE(flaper87): We need to flush the memory
         # because we're neither filling up the buffer
