@@ -66,9 +66,11 @@ class AnsiblePlaybookAction(base.Action):
             return None
 
         # NOTE(flaper87): if it's a path, use it
-        if (isinstance(self._inventory, six.string_types) and
-            os.path.exists(self._inventory)):
-            return open(self._inventory)
+        if isinstance(self._inventory, six.string_types):
+            if os.path.exists(self._inventory):
+                return open(self._inventory)
+        else:
+            self._inventory = yaml.safe_dump(self._inventory)
 
         # NOTE(flaper87):
         # We could probably catch parse errors here
@@ -76,7 +78,7 @@ class AnsiblePlaybookAction(base.Action):
         # we should not move forward with the action
         # if the inventory generation failed
         inventory = tempfile.NamedTemporaryFile(suffix='.yaml')
-        inventory.write(yaml.dump(self._inventory))
+        inventory.write(self._inventory)
         # NOTE(flaper87): We need to flush the memory
         # because we're neither filling up the buffer
         # nor closing the file.
@@ -89,9 +91,11 @@ class AnsiblePlaybookAction(base.Action):
             return None
 
         # NOTE(flaper87): if it's a path, use it
-        if (isinstance(self._playbook, six.string_types) and
-            os.path.exists(self._playbook)):
-            return open(self._playbook)
+        if isinstance(self._playbook, six.string_types):
+            if os.path.exists(self._playbook):
+                return open(self._playbook)
+        else:
+            self._playbook = yaml.safe_dump(self._playbook)
 
         # NOTE(flaper87):
         # We could probably catch parse errors here
@@ -99,7 +103,7 @@ class AnsiblePlaybookAction(base.Action):
         # we should not move forward with the action
         # if the playbook generation failed
         playbook = tempfile.NamedTemporaryFile()
-        playbook.write(yaml.dump(self._playbook))
+        playbook.write(self._playbook)
         # NOTE(flaper87): We need to flush the memory
         # because we're neither filling up the buffer
         # nor closing the file.
