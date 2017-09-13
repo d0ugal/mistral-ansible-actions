@@ -5,7 +5,7 @@ import tempfile
 
 import yaml
 
-from mistral.actions import base
+from mistral_lib.actions import base
 from oslo_concurrency import processutils
 
 
@@ -21,7 +21,7 @@ class AnsibleAction(base.Action):
         self.become = become
         self.become_user = become_user
 
-    def run(self):
+    def run(self, context):
 
         command = ['ansible', self.hosts, ]
 
@@ -110,7 +110,7 @@ class AnsiblePlaybookAction(base.Action):
         playbook.flush()
         return playbook
 
-    def run(self):
+    def run(self, context):
         playbook = self.playbook
         if 0 < self.verbosity < 6:
             verbosity_option = '-' + ('v' * self.verbosity)
